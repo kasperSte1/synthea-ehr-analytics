@@ -1,23 +1,12 @@
 import pathlib
 import pandas as pd
-import psycopg
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
+from db import get_connection
 
 PROJECT_ROOT = pathlib.Path(__file__).parent.parent
 CSV_DIR = PROJECT_ROOT / "data" / "raw" / "csv"
-path = pathlib.Path(CSV_DIR).glob("*.csv")
+path = CSV_DIR.glob("*.csv")
 
-CONN = (f"host={os.environ['POSTGRES_HOST']} "
-        f"port={os.environ['POSTGRES_PORT']} "
-        f"dbname={os.environ['POSTGRES_DB']} "
-        f"user={os.environ['POSTGRES_USER']} "
-        f"password={os.environ['POSTGRES_PASSWORD']}"
-        )
-
-with psycopg.connect(CONN) as conn:
+with get_connection() as conn:
     with conn.cursor() as cursor:
         cursor.execute("DROP SCHEMA IF EXISTS raw CASCADE;")
         cursor.execute("CREATE SCHEMA IF NOT EXISTS raw;")
